@@ -5,23 +5,29 @@
 
 namespace talk::nodes{
 	class Node{
-	private:
-		static constinit const uint16_t type = 0x00;
 	public:
+		enum Type : uint16_t {
+			BASE = 0x00,
+			NEW_CERT = 0x01
+		};
+	private:
+		static constexpr Type type = BASE;
+	public:
+		virtual ~Node() = default;
 		explicit Node(const bytes& data);
 		virtual uint16_t getType() = 0;
 		virtual bytes serialize() = 0;
 	};
 
 	// Used to announce the creation of a new certificate/user
-	class NewCert : public Node{
+	class NewCert final : public Node{
 	public:
-		enum class CertOwner : uint8_t {
+		enum CertOwner : uint8_t {
 			USER = 0x01,
 			SERVER = 0x02
 		};
 
-		enum class CertType : uint16_t {
+		enum CertType : uint16_t {
 			ED25519 = 0x01
 		};
 	private:
@@ -29,8 +35,7 @@ namespace talk::nodes{
 		CertType c_type;
 		uint8_t revoked;
 		uint64_t revocation_date;
-
-		static constinit const uint16_t type = 0x01;
+		static constexpr Type type = NEW_CERT;
 	public:
 
 		explicit NewCert(const bytes& data);

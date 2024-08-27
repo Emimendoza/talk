@@ -4,10 +4,16 @@
 #include <memory>
 namespace talk::internal{
 	class Crypto{
-	private:
-		static constinit const uint16_t type = 0x00; // Plain text
 	public:
 		struct crypt_context;
+		enum Type : uint16_t {
+			PLAIN = 0x00,
+			ED25519 = 0x01
+		};
+	private:
+		static constexpr Type type = PLAIN; // Plain text
+	public:
+		virtual ~Crypto() = default;
 
 		virtual uint16_t getType() {return Crypto::type;}
 		virtual bytes encrypt(const bytes& data) {return data;}
@@ -19,9 +25,9 @@ namespace talk::internal{
 		virtual crypt_context* generateKeyPair() {return nullptr;}
 	};
 
-	class Ed25519 : public Crypto{
+	class Ed25519 final : public Crypto{
 	private:
-		static constinit const uint16_t type = 0x01;
+		static constexpr Type type = ED25519;
 	public:
 
 		uint16_t getType() override;

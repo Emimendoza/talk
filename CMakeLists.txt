@@ -3,8 +3,12 @@ project(talk)
 
 set(CMAKE_CXX_STANDARD 23)
 
+find_package(OpenSSL REQUIRED)
+
 file(GLOB_RECURSE TALK_SOURCES src/impl/*.cpp)
 
 add_library(talk STATIC ${TALK_SOURCES})
 target_include_directories(talk PUBLIC src/include)
 target_include_directories(talk PRIVATE src/headers)
+
+target_link_libraries(talk OpenSSL)
