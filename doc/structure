@@ -1,0 +1,51 @@
+KeyDB:
+- blockchain:
+	- block-size: 1 publickey
+	- hash function: Argon2d-512bit
+	- hash-params: 8GB, 8 threads, (TBD) [Target: 1s/hash]
+	- hash-difficulty: 1valid hash/3600s
+	- block-structure:
+		- header:
+			- prev-hash: Hash
+			- timestamp: Timestamp
+			- nonce: Nonce 128bit
+		- body:
+			- key: PublicKey (max 4096bit)
+			- type [16bit]: Crypto.Type
+			- purpose: user, node, etc.
+		- footer:
+			- hash: Hash
+			- signature: Signature of the hash
+	- rules:
+		2 blocks have the same prev-hash, longest chain is valid
+RevDB:
+- simple (key, val1) DB (no blockchain)
+- sorted by key
+- append only
+- items are immutable
+- Item:
+	- key: hash of block in KeyDB
+	- value: Signed revocation of the key (signed by the owner)
+- rules:
+	- key has to be in KeyDB
+	- the sha512 of the db [key1, val1, key2, val2, ...] and the modification timestamp is used to know if it is up to date
+UserDB:
+- SQL (key, val1, val2, val3) DB (no blockchain)
+- sorted by key
+- items are mutable
+- items never expire
+- Item:
+	- key: hash of block in KeyDB
+	- val1[64bit]: unix timestamp of latest modification
+	- val2[128KiB]: public user data
+	- val3: signature
+- rules:
+	- key has to be in KeyDB
+	- the sha512 of the db [key1, val1, val2, val3, key2, ...] and the modification timestamp is used to know if it is up to date
+	- if key is in RevDB, item is invalid and can be deleted.
+
+MsgNet:
+- regular DB (no blockchain)
+- hash function: Argon2d-512bit
+- hash-params: 1GB, 4 thread, (TBD) [Target: 0.001s/hash]
+- hash-difficulty: 1valid hash/(1s*128KiBweek)

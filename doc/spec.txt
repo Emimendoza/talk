@@ -1,0 +1,5 @@
+Cert Creation Time: 10min
+Cert Spec: 8 cores, 8gb ram
+
+user bandwidth: 1MiB*week/s
+user Spec: 4 cores, 1gb ram
