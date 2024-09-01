@@ -43,8 +43,6 @@ namespace talk::nodes{
 		uint16_t getType() override;
 		bytes serialize() override;
 	};
-
-
 }
 
 #endif //TALK_NODES_H

@@ -51,3 +51,21 @@ std::string Crypto::exportPublicKey() const {
 std::string Crypto::exportPrivateKey() const {
 	throw std::domain_error("Exporting private key not supported by this crypto type");
 }
+
+void Crypto::digestUpdate(const bytes& data) {
+	throw std::domain_error("Digest update not supported by this crypto type");
+}
+
+void Crypto::digestFinal(bytes& out) {
+	throw std::domain_error("Digest final not supported by this crypto type");
+}
+
+bytes Crypto::digestFinal() {
+	bytes out{};
+	digestFinal(out);
+	return out;
+}
+
+void Crypto::digestReset() {
+	throw std::domain_error("Reset not supported by this crypto type");
+}

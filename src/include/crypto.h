@@ -6,10 +6,20 @@ namespace talk::internal{
 	class Crypto{
 	public:
 		enum Type : uint16_t {
-			BASE = 0x00,
-			PLAIN = 0x01,
-			ED25519 = 0x02,
-			ED448 = 0x03
+			// Special (0b0000 uppermost)
+			BASE = 0x0000,
+			// Ciphers (0b0001 uppermost)
+			PLAIN = 0x1000,
+			// Signatures (0b0010 uppermost)
+			ED448 = 0x2000,
+			ED25519 = 0x2001,
+			// Hashes (0b0011 uppermost)
+			SHA256 = 0x3000,
+			SHA512 = 0x3001,
+			SHAKE256 = 0x3002,
+			// Key Derivation Functions (0b0100 uppermost)
+			Argon2d = 0x4000
+
 		};
 	private:
 		static constexpr Type type = BASE;
@@ -29,6 +39,11 @@ namespace talk::internal{
 		virtual void generateKeyPair();
 		[[nodiscard]] virtual std::string exportPublicKey() const;
 		[[nodiscard]] virtual std::string exportPrivateKey() const;
+
+		virtual void digestUpdate(const bytes& data);
+		virtual void digestFinal(bytes& out);
+		virtual bytes digestFinal();
+		virtual void digestReset();
 	};
 
 	class Plain final : public Crypto {
@@ -79,6 +94,20 @@ namespace talk::internal{
 		bool verify(const bytes& data, const bytes& signature) override;
 
 		void generateKeyPair() override;
+	};
+
+	class Hash : public Crypto {
+	protected:
+		class crypt_context;
+		crypt_context *context;
+	public:
+		Hash();
+		~Hash() override;
+
+		[[nodiscard]] constexpr Type getType() const override = 0;
+		void digestUpdate(const bytes &data) override = 0;
+		void digestFinal(bytes &out) override = 0;
+
 	};
 }
 

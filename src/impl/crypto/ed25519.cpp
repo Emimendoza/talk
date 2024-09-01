@@ -58,7 +58,7 @@ bool Ed25519::verify(const bytes &data, const bytes &signature) {
 		EVP_MD_CTX_free(mdctx);
 		throw std::runtime_error("Failed to update message digest context");
 	}
-	int ret = EVP_DigestVerifyFinal(mdctx, signature.data_u8(), signature.size());
+	const int ret = EVP_DigestVerifyFinal(mdctx, signature.data_u8(), signature.size());
 
 	// No errors on openssl side but the signature is invalid
 	if (ret == 0){
