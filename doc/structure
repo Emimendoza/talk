@@ -1,23 +1,14 @@
 KeyDB:
-- blockchain:
-	- block-size: 1 publickey
-	- hash function: argon2d-512bit
-	- hash-params: 8GB, 8 threads, (TBD) [Target: 1s/hash]
-	- hash-difficulty: 1valid hash/3600s
-	- block-structure:
-		- header:
-			- prev-hash: hash
-			- timestamp: Timestamp
-			- nonce: Nonce 128bit
-		- body:
-			- key: PublicKey (max 4096bit)
-			- type [16bit]: crypto.type_t
-			- purpose: user, node, etc.
-		- footer:
-			- hash: hash
-			- signature: Signature of the hash
-	- rules:
-		2 blocks have the same prev-hash, longest chain is valid
+- simple (key, val1, val2)
+	-val1 is a public key of one of the follwing types: Ed448, ML-DSA, SLH-DSA
+	-key is the POW argon2d hash of val1 (params to be determined later)
+	-val2 is key signed by val1
+- rules
+	- val1 has to be valid
+	- val2 has to be a valid signature using val1
+	- key has to be a valid POW hash.
+	- key will be used as an identifier of this public cyrptographic key in the following dbs
+
 RevDB:
 - simple (key, val1) DB (no blockchain)
 - sorted by key
