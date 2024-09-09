@@ -8,7 +8,7 @@ namespace talk{
 		// 0x01
 		uint8_t protocol;
 		// sha512 of the serialized message
-		std::byte ID[64];
+		byte ID[64];
 
 	};
 }

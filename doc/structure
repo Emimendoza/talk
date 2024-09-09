@@ -1,20 +1,20 @@
 KeyDB:
 - blockchain:
 	- block-size: 1 publickey
-	- hash function: Argon2d-512bit
+	- hash function: argon2d-512bit
 	- hash-params: 8GB, 8 threads, (TBD) [Target: 1s/hash]
 	- hash-difficulty: 1valid hash/3600s
 	- block-structure:
 		- header:
-			- prev-hash: Hash
+			- prev-hash: hash
 			- timestamp: Timestamp
 			- nonce: Nonce 128bit
 		- body:
 			- key: PublicKey (max 4096bit)
-			- type [16bit]: Crypto.Type
+			- type [16bit]: crypto.type_t
 			- purpose: user, node, etc.
 		- footer:
-			- hash: Hash
+			- hash: hash
 			- signature: Signature of the hash
 	- rules:
 		2 blocks have the same prev-hash, longest chain is valid
@@ -46,6 +46,6 @@ UserDB:
 
 MsgNet:
 - regular DB (no blockchain)
-- hash function: Argon2d-512bit
+- hash function: argon2d-512bit
 - hash-params: 1GB, 4 thread, (TBD) [Target: 0.001s/hash]
 - hash-difficulty: 1valid hash/(1s*128KiBweek)

@@ -5,19 +5,18 @@
 #include <openssl/pem.h>
 #include <openssl/err.h>
 
-namespace talk::internal{
-	class Ed::crypt_context{
-		friend class Ed448;
-		friend class Ed25519;
-		friend class Ed;
+namespace talk::crypto{
+	class ed::crypt_context{
+		friend class ed448;
+		friend class ed25519;
+		friend class ed;
 
 		EVP_PKEY *key;
+		EVP_MD *digest_type;
+		const int type;
 
-		crypt_context();
+		explicit crypt_context(const int &type, const char *digest_name);
 		~crypt_context();
-		void recreate();
-
-		void generateKeyPair(int type);
 	};
 }
 
