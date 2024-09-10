@@ -4,6 +4,7 @@
 #include <openssl/core_names.h>
 #include <cstring>
 #include <argon2.h>
+#include <openssl/err.h>
 
 using namespace talk::crypto;
 using talk::bytes;
@@ -30,10 +31,12 @@ inline kdf_ctx<N>::kdf_ctx(const char* kdf_name, const std::array<const char*, N
 						   const std::array<uint32_t, N>& vals) : values(vals) {
 	kdf = EVP_KDF_fetch(nullptr, kdf_name, nullptr);
 	if (!kdf) {
+		ERR_print_errors_fp(stderr);
 		throw std::runtime_error("Failed to fetch kdf");
 	}
 	ctx = EVP_KDF_CTX_new(kdf);
 	if (!ctx) {
+		ERR_print_errors_fp(stderr);
 		throw std::runtime_error("Failed to create kdf ctx");
 	}
 	for (size_t i = 0; i < N; i++) {
@@ -61,9 +64,10 @@ inline void kdf_ctx<N>::deriveKey(const bytes &salt, const bytes &password, size
 	out.resize(length);
 	auto ret = EVP_KDF_derive(ctx, out.data(), out.size(), params.data());
 
-	EVP_KDF_CTX_reset(ctx);
+	//EVP_KDF_CTX_reset(ctx);
 
 	if(ret != 1){
+		ERR_print_errors_fp(stderr);
 		throw std::runtime_error("Failed to derive key");
 	}
 }

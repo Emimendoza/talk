@@ -182,7 +182,6 @@ inline void sig::generateSharedSecret(const sig &other, talk::bytes &out) const 
 
 inline sig::sig(const int &type, const char *digest_name) : key(EVP_PKEY_new()), type(type) {
 	if (!digest_name){
-		ERR_print_errors_fp(stderr);
 		throw std::runtime_error("Digest name is null");
 	}
 	digest_type = EVP_MD_fetch(nullptr, digest_name, nullptr);
