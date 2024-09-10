@@ -1,11 +1,16 @@
 #ifndef TALK_COMMON_H
 #define TALK_COMMON_H
+#include <atomic>
 #include <cstdint>
 #include <cstddef>
 #include <vector>
 #include <string>
 
 namespace talk {
+	void setMaxThreads(size_t threads);
+	const std::atomic<size_t>& getMaxThreads();
+	size_t getMinMaxThreads();
+
 	enum class Protocol : uint8_t {
 		// 0x01
 		MESSAGE_V1 = 0x01

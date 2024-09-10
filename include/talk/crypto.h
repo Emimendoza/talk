@@ -23,9 +23,6 @@ namespace talk::crypto{
 		HKDF = 0x4001
 	};
 
-	void setMaxThreads(size_t threads);
-	size_t getMaxThreads();
-
 	class cipher {
 	public:
 		[[nodiscard]] virtual type_t getType() const = 0;
