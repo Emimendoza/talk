@@ -30,9 +30,9 @@ namespace talk::crypto{
 	public:
 		[[nodiscard]] virtual type_t getType() const = 0;
 		[[nodiscard]] bytes encrypt(const bytes &data);
-		virtual void encrypt(const bytes &data, bytes &out) = 0;
+		virtual void encryptIn(const bytes &data, bytes &out) = 0;
 		[[nodiscard]] bytes decrypt(const bytes &data);
-		virtual void decrypt(const bytes &data, bytes &out) = 0;
+		virtual void decryptIn(const bytes &data, bytes &out) = 0;
 	};
 
 	class signature {
@@ -41,54 +41,43 @@ namespace talk::crypto{
 		[[nodiscard]] virtual type_t getType() const = 0;
 
 		virtual void generateKeyPair() = 0;
-		virtual void sign(const bytes &data, bytes &out) const = 0;
+		virtual void signIn(const bytes &data, bytes &out) const = 0;
 
 		[[nodiscard]] virtual bool verify(const bytes &data, const bytes &signature) const = 0;
 		// Key API
 		[[nodiscard]] virtual std::string exportPublicKey() const = 0;
 		[[nodiscard]] virtual std::string exportPrivateKey() const = 0;
-		virtual void generateSharedSecret(const signature &other, bytes &out) const = 0;
+		virtual void generateSharedSecretIn(const signature &other, bytes &out) const = 0;
 
 		[[nodiscard]] bytes generateSharedSecret(const signature &other) const;
 		[[nodiscard]] bytes sign(const bytes &data) const;
 	};
 
 	class hash {
-	protected:
-		class crypt_context;
-		crypt_context *context{};
 	public:
-		~hash();
-
 		[[nodiscard]] virtual type_t getType() const = 0;
 		// hash API
-		virtual void digestUpdate(const bytes &data);
-		virtual void digestFinal(bytes &out);
+		virtual void digestUpdate(const bytes &data) = 0;
+		virtual void digestFinalIn(bytes &out) = 0;
 		bytes digestFinal();
-		virtual void digestReset();
+		virtual void digestReset() = 0;
 	};
 
 	class kdf{
-	protected:
-		class crypt_context;
-		crypt_context *context{};
 	public:
-
-		~kdf();
 		[[nodiscard]] virtual type_t getType() const = 0;
-		virtual void deriveKey(const bytes &salt, const bytes &password, size_t length, bytes &out);
+		virtual void deriveKeyIn(const bytes &salt, const bytes &password, size_t length, bytes &out) = 0;
 		[[nodiscard]] bytes deriveKey(const bytes &salt, const bytes &password, size_t length);
 	};
 
 	class rand{
-	protected:
-		class crypt_context;
-		crypt_context *context{};
 	public:
-		~rand();
 		[[nodiscard]] virtual type_t getType() const = 0;
-		virtual void random(size_t len, bytes& out) = 0;
+		virtual void randomIn(size_t len, bytes& out) = 0;
 		[[nodiscard]] bytes random(size_t len);
+
+		template<size_t N>
+		inline std::array<byte, N> random();
 	};
 
 	// declaring sub classes
@@ -99,7 +88,6 @@ namespace talk::crypto{
 
 	// signatures
 	class signature; // (abstract)
-	class ed; // (abstract)
 	class ed448;
 	class ed25519;
 

@@ -3,10 +3,10 @@
 using namespace talk::crypto;
 using talk::bytes;
 
-void plain::encrypt(const bytes& data, bytes& out) {
+void plain::encryptIn(const bytes& data, bytes& out) {
 	out = data;
 }
 
-void plain::decrypt(const bytes& data, bytes& out) {
+void plain::decryptIn(const bytes& data, bytes& out) {
 	out = data;
 }

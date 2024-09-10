@@ -28,8 +28,8 @@ std::pair<bytes, bytes> talk::pow(const bytes& data, const size_t& difficulty, c
 	}
 
 	while (running) [[likely]] {
-		rand.random(nonce_size, nonce);
-		crypt.deriveKey(nonce, data, key_size, hash);
+		rand.randomIn(nonce_size, nonce);
+		crypt.deriveKeyIn(nonce, data, key_size, hash);
 		running = false;
 		for(size_t i = hash.size()-1 ; i >= hash.size()-full; i--) {
 			if(hash[i] != 0) [[likely]] {

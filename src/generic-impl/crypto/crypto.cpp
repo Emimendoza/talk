@@ -47,42 +47,42 @@ type_t fRand::getType() const {
 
 bytes cipher::encrypt(const bytes &data){
 	bytes out{};
-	encrypt(data, out);
+	encryptIn(data, out);
 	return out;
 }
 
 bytes cipher::decrypt(const talk::bytes &data) {
 	bytes out{};
-	decrypt(data, out);
+	decryptIn(data, out);
 	return out;
 }
 
 bytes signature::sign(const talk::bytes &data) const {
 	bytes out{};
-	sign(data, out);
+	signIn(data, out);
 	return out;
 }
 
 bytes hash::digestFinal() {
 	bytes out{};
-	digestFinal(out);
+	digestFinalIn(out);
 	return out;
 }
 
 bytes signature::generateSharedSecret(const talk::crypto::signature &other) const {
 	bytes out{};
-	generateSharedSecret(other, out);
+	generateSharedSecretIn(other, out);
 	return out;
 }
 
 bytes kdf::deriveKey(const talk::bytes &salt, const talk::bytes &password, size_t length) {
 	bytes out{};
-	deriveKey(salt, password, length, out);
+	deriveKeyIn(salt, password, length, out);
 	return out;
 }
 
 bytes rand::random(size_t len) {
 	bytes out{};
-	random(len, out);
+	randomIn(len, out);
 	return out;
 }

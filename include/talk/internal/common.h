@@ -87,14 +87,6 @@ namespace talk{
 		return ret;
 	}
 
-	constexpr uint8_t *bytes::dataU8() {
-		return reinterpret_cast<uint8_t*>(data());
-	}
-	constexpr const uint8_t *bytes::dataU8() const
-	{
-		return reinterpret_cast<const uint8_t*>(data());
-	}
-
 	template<size_t N>
 	constexpr std::array<byte, N> bytes::toArray(const size_t& start) const {
 		std::array<byte, N> ret{};

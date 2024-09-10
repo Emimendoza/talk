@@ -37,7 +37,6 @@ namespace talk::nodes{
 		uint64_t revocation_date;
 		static constexpr Type type = NEW_CERT;
 	public:
-
 		explicit NewCert(const bytes& data);
 		explicit NewCert(const CertOwner& owner, const CertType& type);
 		uint16_t getType() override;

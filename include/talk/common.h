@@ -36,20 +36,6 @@ namespace talk {
 		 */
 		[[nodiscard]] constexpr std::string toHex(const bool& upper) const;
 
-		/**
-		 * @brief Get the data as a uint8_t pointer
-		 * @note Do not store the pointer, as it will be invalidated if the vector is resized
-		 * @return a pointer to the data
-		 */
-		constexpr uint8_t* dataU8();
-
-		/**
-		 * @brief Get the data as a uint8_t pointer
-		 * @note Do not store the pointer, as it will be invalidated if the vector is resized
-		 * @return a pointer to the data
-		 */
-		[[nodiscard]] constexpr const uint8_t* dataU8() const;
-
 		template<size_t N>
 		[[nodiscard]] constexpr std::array<byte, N> toArray(const size_t& start = 0) const;
 	};
