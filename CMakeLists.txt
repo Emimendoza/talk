@@ -30,6 +30,7 @@ target_include_directories(talk_static PUBLIC include/talk)
 target_include_directories(talk_static PRIVATE src/headers)
 
 if (USE_OPENSSL)
+    add_compile_definitions(TALK_USE_OPENSSL)
     target_include_directories(talk_static PRIVATE ${OPENSSL_INCLUDE_DIR})
     target_link_libraries(talk_static OpenSSL::Crypto)
 

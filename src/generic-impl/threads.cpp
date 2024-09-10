@@ -4,23 +4,44 @@
 using namespace talk;
 using namespace talk::internal;
 
-namespace {
+
+namespace talk::internal {
+#ifdef TALK_USE_OPENSSL
+	class openssl_threads;
+	extern openssl_threads _ot;
+#endif
+}
+
+
+
+namespace{
 	class generic_threads final : public threads{
 	public:
+		generic_threads();
 		std::mutex m{};
 		std::vector<threads*> t{};
 		std::atomic<size_t> maxThreads{1};
 		void setMaxThreads(size_t threads) override {
 			maxThreads = threads;
 		}
-		size_t getMaxThreads() override {
-			return maxThreads;
-		}
-		generic_threads(){
-			registerThread();
+	private:
+		void registerThread(void* thread){
+			std::lock_guard<std::mutex> lock(m);
+			t.push_back((threads*) thread);
 		}
 	};
 	generic_threads _generic_threads{};
+}
+
+size_t threads::getMaxThreads(){
+	return _generic_threads.maxThreads;
+}
+
+generic_threads::generic_threads() {
+	registerThread(&_generic_threads);
+#ifdef TALK_USE_OPENSSL
+	registerThread(&_ot);
+#endif
 }
 
 void talk::setMaxThreads(size_t threads) {
@@ -53,9 +74,4 @@ void threads::SMT(size_t threads) {
 	for(const auto& i : getThreads()){
 		i->setMaxThreads(threads);
 	}
-}
-
-void threads::registerThread() {
-	std::lock_guard<std::mutex> lock(getMutex());
-	getThreads().push_back(this);
 }

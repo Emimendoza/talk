@@ -3,12 +3,11 @@
 #include <openssl/thread.h>
 #include <mutex>
 
-
 using namespace talk;
 using namespace talk::internal;
 
-namespace{
-	class openssl_threads final : threads{
+namespace talk::internal{
+	class openssl_threads final : public threads{
 	private:
 		std::mutex mutex{};
 	public:
@@ -20,9 +19,6 @@ namespace{
 			std::lock_guard<std::mutex> lock(mutex);
 			return OSSL_get_max_threads(nullptr);
 		}
-		openssl_threads(){
-			registerThread();
-		}
 	};
-	openssl_threads _openssl_threads{};
+	openssl_threads _ot{};
 }

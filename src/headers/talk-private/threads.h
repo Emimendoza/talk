@@ -8,11 +8,10 @@ namespace talk::internal{
 	protected:
 		static std::mutex& getMutex();
 		static std::vector<threads*>& getThreads();
-		void registerThread();
 	public:
 		static void SMT(size_t threads);
 		virtual void setMaxThreads(size_t threads) = 0;
-		virtual size_t getMaxThreads() = 0;
+		virtual size_t getMaxThreads();
 	};
 }
 
