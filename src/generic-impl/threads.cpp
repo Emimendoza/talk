@@ -1,6 +1,7 @@
 #include <talk-private/threads.h>
 #include <parallel.h>
 #include <common.h>
+#include <crypto.h>
 
 using namespace talk;
 using namespace talk::internal;
@@ -24,7 +25,7 @@ namespace{
 		std::atomic<size_t> maxThreads{1};
 		void setMaxThreads(size_t threads) override {
 			maxThreads = threads;
-			defaultPool = std::make_shared<pool>(threads);
+			crypto::cryptoPool = std::make_shared<pool>(threads);
 		}
 	private:
 		void registerThread(void* thread){
@@ -35,7 +36,7 @@ namespace{
 	generic_threads _generic_threads{};
 }
 
-std::shared_ptr<pool> talk::defaultPool = std::make_shared<pool>(1);
+std::shared_ptr<pool> talk::crypto::cryptoPool = std::make_shared<pool>(1);
 
 size_t threads::getMaxThreads(){
 	return _generic_threads.maxThreads;

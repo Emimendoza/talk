@@ -7,6 +7,9 @@
 #include <string>
 
 namespace talk {
+	class pool;
+
+	// Sets the amount of threads in all pools
 	void setMaxThreads(size_t threads);
 	const std::atomic<size_t>& getMaxThreads();
 	size_t getMinMaxThreads();

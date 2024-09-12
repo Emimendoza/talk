@@ -2,13 +2,35 @@
 #define TALK_PARALLEL_H
 #include <future>
 #include <queue>
+#include <unordered_set>
+
+namespace talk{
+	class pool;
+	template <typename T>
+	class queue;
+}
+
+namespace talk::internal{
+	template <typename Signature>
+	class poolHandle{
+	protected:
+		static void step(void* data);
+		queue<std::packaged_task<Signature>> tasks;
+		std::shared_ptr<pool> p;
+	public:
+		poolHandle() = delete;
+		inline ~poolHandle();
+		inline explicit poolHandle(const std::shared_ptr<pool>& p);
+	};
+}
+
 namespace talk{
 	template <typename T>
 	class queue{
 	private:
 		std::recursive_mutex mutex;
-		std::condition_variable cv;
-		std::condition_variable cv_empty;
+		std::condition_variable_any cv;
+		std::condition_variable_any cv_empty;
 		std::queue<T> queue;
 	public:
 		// Non-blocking
@@ -34,29 +56,37 @@ namespace talk{
 		struct impl;
 		std::unique_ptr<impl> pimpl;
 	public:
-		void queue(std::function<void(void*)> f);
-		pool(size_t threads);
+		// Returns false if pool is not accepting new tasks (stopped or stopping)
+		bool queue(const std::function<void(void*)>& f, void* data);
+		pool() = delete;
+		explicit pool(size_t threads);
 		~pool();
+
+		[[nodiscard]] const std::unordered_set<std::thread::id>& getThreadIds() const;
 	};
+
+	template <typename Signature>
+	class poolHandle;
 
 	template <typename T, typename... Args>
-	class poolHandle{
-	private:
-		static void step(void* data);
-		queue<std::packaged_task<T(Args...)>> tasks;
-		std::shared_ptr<pool> p;
+	class poolHandle<T(Args...)> : public internal::poolHandle<T(Args...)>{
 	public:
-		poolHandle() = delete;
-		inline explicit poolHandle(const std::shared_ptr<pool>& p);
+		// Inherit constructors
+		using internal::poolHandle<T(Args...)>::poolHandle;
 
 		inline std::future<T> async(std::function<T(Args...)> f, Args... args);
-
 		inline std::vector<std::future<T>> async(std::function<T(Args...)> f, std::vector<Args...> args);
-
-		inline ~poolHandle();
 	};
-	
-	extern std::shared_ptr<pool> defaultPool;
+
+	template <typename T>
+	class poolHandle<T(void)> : public internal::poolHandle<T(void)>{
+	public:
+		// Inherit constructors
+		using internal::poolHandle<T(void)>::poolHandle;
+
+		inline std::future<T> async(std::function<T(void)> f);
+		inline std::vector<std::future<T>> async(std::function<T(void)> f, size_t count);
+	};
 }
 
 #include "internal/parallel.h"

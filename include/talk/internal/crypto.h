@@ -157,6 +157,8 @@ namespace talk::crypto{
 		randomIn(N, out);
 		return out.toArray<N>();
 	}
+
+	extern std::shared_ptr<pool> cryptoPool;
 }
 
 #endif //TALK_INTERNAL_CRYPTO_H
