@@ -75,9 +75,9 @@ bytes signature::generateSharedSecret(const talk::crypto::signature &other) cons
 	return out;
 }
 
-bytes kdf::deriveKey(const talk::bytes &salt, const talk::bytes &password, size_t length) {
+bytes kdf::deriveKey(const bytes &salt, const bytes &password) {
 	bytes out{};
-	deriveKeyIn(salt, password, length, out);
+	deriveKeyIn(salt, password, out);
 	return out;
 }
 

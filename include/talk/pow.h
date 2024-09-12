@@ -16,9 +16,8 @@ namespace talk{
 	 * @param key_size the size of the key for the kdf to produce
 	 * @return a pair of the nonce and the hash
 	 */
-	std::pair<bytes, bytes> pow(const bytes& data, const size_t& difficulty, const size_t& nonce_size,
-								crypto::kdf& crypt,
-								const size_t& key_size);
+	std::pair<bytes, bytes>
+	pow(const bytes &data, const size_t &difficulty, const size_t &nonce_size, crypto::kdf &crypt);
 }
 
 #endif //TALK_POW_H

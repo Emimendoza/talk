@@ -108,8 +108,9 @@ namespace talk::crypto{
 		static constexpr type_t type = ARGON2D;
 	public:
 		[[nodiscard]] type_t getType() const override;
-		void deriveKeyIn(const bytes &salt, const bytes &password, size_t length, bytes &out) override;
-		argon2d(uint32_t threads, uint32_t lanes, uint32_t memory, uint32_t iterations);
+		[[nodiscard]] size_t outLen() const override;
+		void deriveKeyIn(const bytes &salt, const bytes &password, bytes &out) override;
+		argon2d(uint32_t lanes, uint32_t memory, uint32_t iterations, uint32_t out_size);
 		~argon2d();
 
 	};
@@ -121,8 +122,9 @@ namespace talk::crypto{
 		static constexpr type_t type = HKDF;
 	public:
 		[[nodiscard]] type_t getType() const override;
-		void deriveKeyIn(const bytes &salt, const bytes &password, size_t length, bytes &out) override;
-		hkdf();
+		[[nodiscard]] size_t outLen() const override;
+		void deriveKeyIn(const bytes &salt, const bytes &password, bytes &out) override;
+		explicit hkdf(size_t out_len);
 		~hkdf();
 	};
 

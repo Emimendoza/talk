@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 file(GLOB_RECURSE TALK_SOURCES src/generic-impl/*.cpp)
 
 option(USE_OPENSSL "Use OpenSSL" ON)
-
+option(BUILTIN_ARGON_2 "Use the built in Argon2 implementation" OFF)
 # Platform specific
 
 # if CMAKE_SYSTEM_NAME is Linux
@@ -19,6 +19,10 @@ if(USE_OPENSSL)
     find_package(OpenSSL REQUIRED)
     file(GLOB_RECURSE TALK_SOURCES_OPENSSL src/openssl-impl/*.cpp)
     list(APPEND TALK_SOURCES ${TALK_SOURCES_OPENSSL})
+endif()
+
+if(BUILTIN_ARGON_2)
+    add_compile_definitions(TALK_BUILTIN_ARGON2)
 endif()
 
 add_library(talk SHARED ${TALK_SOURCES})

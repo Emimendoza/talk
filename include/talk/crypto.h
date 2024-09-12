@@ -63,8 +63,9 @@ namespace talk::crypto{
 	class kdf{
 	public:
 		[[nodiscard]] virtual type_t getType() const = 0;
-		virtual void deriveKeyIn(const bytes &salt, const bytes &password, size_t length, bytes &out) = 0;
-		[[nodiscard]] bytes deriveKey(const bytes &salt, const bytes &password, size_t length);
+		virtual void deriveKeyIn(const bytes &salt, const bytes &password, bytes &out) = 0;
+		[[nodiscard]] bytes deriveKey(const bytes &salt, const bytes &password);
+		[[nodiscard]] virtual size_t outLen() const = 0;
 	};
 
 	class rand{
