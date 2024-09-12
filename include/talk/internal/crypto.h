@@ -168,7 +168,7 @@ namespace talk::crypto{
 	};
 
 	template<size_t N>
-	std::array<byte, N> rand::random(){
+	byteArr<N> rand::random(){
 		bytes out{};
 		randomIn(N, out);
 		return out.toArray<N>();

@@ -76,7 +76,7 @@ namespace talk::crypto{
 		[[nodiscard]] bytes random(size_t len);
 
 		template<size_t N>
-		inline std::array<byte, N> random();
+		inline byteArr<N> random();
 	};
 
 	// declaring sub classes

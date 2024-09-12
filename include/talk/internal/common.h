@@ -88,8 +88,8 @@ namespace talk{
 	}
 
 	template<size_t N>
-	constexpr std::array<byte, N> bytes::toArray(const size_t& start) const {
-		std::array<byte, N> ret{};
+	constexpr byteArr<N> bytes::toArray(const size_t& start) const {
+		byteArr<N> ret{};
 		if (size() < start + N) {
 			throw std::out_of_range("Not enough data");
 		}
@@ -98,12 +98,12 @@ namespace talk{
 	}
 
 	template<size_t N>
-	inline void bytes::append(const std::array<byte, N>& data){
+	inline void bytes::append(const byteArr<N>& data){
 		insert(end(), data.begin(), data.end());
 	}
 
 	template<size_t N>
-	inline bytes& bytes::operator+=(const std::array<byte, N>& data){
+	inline bytes& bytes::operator+=(const byteArr<N>& data){
 		append(data);
 		return *this;
 	}

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
+#include <array>
 #include <string>
 
 namespace talk {
@@ -20,6 +21,10 @@ namespace talk {
 	};
 
 	typedef std::uint8_t byte;
+
+	// Very common, so the shorthand is useful
+	template<size_t N>
+	using byteArr = std::array<byte, N>;
 
 	class bytes : public std::vector<byte> {
 	public:
@@ -45,15 +50,15 @@ namespace talk {
 		[[nodiscard]] constexpr std::string toHex(const bool& upper) const;
 
 		template<size_t N>
-		[[nodiscard]] constexpr std::array<byte, N> toArray(const size_t& start = 0) const;
+		[[nodiscard]] constexpr byteArr<N> toArray(const size_t& start = 0) const;
 
 		template<size_t N>
-		inline void append(const std::array<byte, N>& data);
+		inline void append(const byteArr<N>& data);
 
 		inline void append(const bytes& data);
 
 		template<size_t N>
-		inline bytes& operator+=(const std::array<byte, N>& data);
+		inline bytes& operator+=(const byteArr<N>& data);
 
 		inline bytes& operator+=(const bytes& data);
 	};

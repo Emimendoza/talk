@@ -3,7 +3,6 @@
 #include <parallel.h>
 #include "internal/crypto.h"
 
-
 // argon2d 1.3.0
 
 using namespace talk::crypto;
@@ -11,13 +10,14 @@ using namespace talk;
 using talk::bytes;
 
 namespace{
-	constexpr std::array<byte, 4> ZEROS = {0, 0, 0, 0};
-	constexpr std::array<byte, 4> ONES = {0xff, 0xff, 0xff, 0xff};
-	constexpr std::array<byte, 4> VERSION_LE = serializeLE(0x13);
+	constexpr byteArr<4> ZEROS = {0, 0, 0, 0};
+	constexpr byteArr<4> ONES = {0xff, 0xff, 0xff, 0xff};
+	constexpr byteArr<4> VERSION_LE = serializeLE(0x13);
 
 	struct argon2_ctx{
 		poolHandle<void()> workers;
-		const std::array<byte, 40> H0_in_init;
+		blake2b blake2b_ctx;
+		const byteArr<40> H0_in_init;
 		bytes H0_IN;
 		uint32_t lanes{};
 		uint32_t memory{};
@@ -25,21 +25,25 @@ namespace{
 		uint32_t iterations{};
 		uint32_t outLen{};
 		std::unique_ptr<std::unique_ptr<byte[]>[]> memoryBlocks;
-		std::array<byte, 64> H0{};
-		explicit argon2_ctx(const std::array<byte, 40>& H0_init);
+		byteArr<64> H0{};
+		explicit argon2_ctx(const byteArr<40>& H0_init);
 	};
 }
 
-argon2_ctx::argon2_ctx(const std::array<byte, 40>& H0_init) : workers(cryptoPool), H0_in_init(H0_init){}
+argon2_ctx::argon2_ctx(const byteArr<40>& H0_init) : workers(cryptoPool), H0_in_init(H0_init){}
 
 struct argon2d::crypt_context : public argon2_ctx{
 public:
 	using argon2_ctx::argon2_ctx;
 };
 
+size_t argon2d::outLen() const {
+	return ctx->outLen;
+}
+
 argon2d::~argon2d() = default;
 argon2d::argon2d(uint32_t lanes, uint32_t memory, uint32_t iterations, uint32_t out_size) {
-	std::array<byte, 40> H0_init{};
+	byteArr<40> H0_init{};
 	auto lanesLE = serializeLE(lanes);
 	auto memoryLE = serializeLE(memory);
 	auto iterationsLE = serializeLE(iterations);
@@ -89,8 +93,6 @@ void argon2d::deriveKeyIn(const bytes &salt, const bytes &password, bytes &out) 
 	// NOTHING (K)
 	ctx->H0_IN += ZEROS; //〈X〉
 	// NOTHING (X)
-
-
 }
 
 

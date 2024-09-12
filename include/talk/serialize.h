@@ -1,6 +1,5 @@
 #ifndef TALK_SERIALIZE_H
 #define TALK_SERIALIZE_H
-#include <array>
 #include <common.h>
 
 namespace talk{
@@ -8,19 +7,19 @@ namespace talk{
 	// Use this type for serialization
 
 	template<typename T>
-	constexpr std::array<byte, sizeof(T)> serialize(T data);
+	constexpr byteArr<sizeof(T)> serialize(T data);
 
 	template<typename T>
-	constexpr T deserialize(const std::array<byte, sizeof(T)>& data);
+	constexpr T deserialize(const byteArr<sizeof(T)>& data);
 
 	// Serialization in little-endian
 	// Only use this if absolutely necessary (e.g. for network protocols or if specified in a standard)
 
 	template<typename T>
-	constexpr std::array<byte, sizeof(T)> serializeLE(T data);
+	constexpr byteArr<sizeof(T)> serializeLE(T data);
 
 	template<typename T>
-	constexpr T deserializeLE(const std::array<byte, sizeof(T)>& data);
+	constexpr T deserializeLE(const byteArr<sizeof(T)>& data);
 
 }
 #include "internal/serialize.h"
