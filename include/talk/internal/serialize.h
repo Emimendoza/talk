@@ -27,6 +27,27 @@ namespace talk{
 		}
 		return ret;
 	}
+
+	template<typename T>
+	constexpr T deserializeLE(const std::array<byte, sizeof(T)>& data){
+		T ret = 0;
+		size_t i = 0;
+		for (const auto& byte : data){
+			ret |= byte << (i*8);
+			i++;
+		}
+		return ret;
+	}
+
+	template<typename T>
+	constexpr std::array<byte, sizeof(T)> serializeLE(T data){
+		std::array<byte, sizeof(T)> ret;
+		for (size_t i = 0; i < sizeof(T); i++){
+			ret[i] = data & 0xFF;
+			data >>= 8;
+		}
+		return ret;
+	}
 }
 
 
