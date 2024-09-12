@@ -35,7 +35,7 @@ namespace talk {
 		 * @param success whether the conversion was successful
 		 */
 		[[nodiscard]] static constexpr
-		bytes fromHex(const std::string_view& hex, bool& success);
+		inline bytes fromHex(const std::string_view& hex, bool& success);
 
 		/**
 		 * @brief Convert the data to a hex string
@@ -46,6 +46,16 @@ namespace talk {
 
 		template<size_t N>
 		[[nodiscard]] constexpr std::array<byte, N> toArray(const size_t& start = 0) const;
+
+		template<size_t N>
+		inline void append(const std::array<byte, N>& data);
+
+		inline void append(const bytes& data);
+
+		template<size_t N>
+		inline bytes& operator+=(const std::array<byte, N>& data);
+
+		inline bytes& operator+=(const bytes& data);
 	};
 
 	// Represents empty bytes (no data)

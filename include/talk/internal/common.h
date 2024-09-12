@@ -96,6 +96,26 @@ namespace talk{
 		std::memcpy(ret.data(), data() + start, N);
 		return ret;
 	}
+
+	template<size_t N>
+	inline void bytes::append(const std::array<byte, N>& data){
+		insert(end(), data.begin(), data.end());
+	}
+
+	template<size_t N>
+	inline bytes& bytes::operator+=(const std::array<byte, N>& data){
+		append(data);
+		return *this;
+	}
+
+	inline void bytes::append(const bytes& data){
+		insert(end(), data.begin(), data.end());
+	}
+
+	inline bytes& bytes::operator+=(const bytes& data){
+		append(data);
+		return *this;
+	}
 }
 
 #endif //TALK_INTERNAL_COMMON_H
