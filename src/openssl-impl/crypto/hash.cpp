@@ -89,6 +89,10 @@ struct shake256::crypt_context : public hash_ctx{
 	using hash_ctx::hash_ctx;
 };
 
+struct blake2b::crypt_context : public hash_ctx{
+	using hash_ctx::hash_ctx;
+};
+
 sha256::sha256() {
 	ctx = std::make_unique<crypt_context>("sha256");
 }
@@ -101,9 +105,14 @@ shake256::shake256() {
 	ctx = std::make_unique<crypt_context>("shake256");
 }
 
+blake2b::blake2b() {
+	ctx = std::make_unique<crypt_context>("blake2b");
+}
+
 sha256::~sha256() = default;
 sha512::~sha512() = default;
 shake256::~shake256() = default;
+blake2b::~blake2b() = default;
 
 void sha256::digestUpdate(const bytes &data) {
 	ctx->digestUpdate(data);
@@ -141,3 +150,14 @@ void shake256::digestReset() {
 	ctx->digestReset();
 }
 
+void blake2b::digestUpdate(const bytes &data) {
+	ctx->digestUpdate(data);
+}
+
+void blake2b::digestFinalIn(bytes &out) {
+	ctx->digestFinal(out);
+}
+
+void blake2b::digestReset() {
+	ctx->digestReset();
+}

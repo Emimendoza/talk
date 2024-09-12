@@ -101,6 +101,20 @@ namespace talk::crypto{
 		~shake256();
 	};
 
+	class blake2b final : public hash {
+	private:
+		struct crypt_context;
+		std::unique_ptr<crypt_context> ctx;
+		static constexpr type_t type = BLAKE2B;
+	public:
+		[[nodiscard]]  type_t getType() const override;
+		void digestUpdate(const bytes &data) override;
+		void digestFinalIn(bytes &out) override;
+		void digestReset() override;
+		blake2b();
+		~blake2b();
+	};
+
 	class argon2d final : public kdf {
 	private:
 		struct crypt_context;

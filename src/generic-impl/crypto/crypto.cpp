@@ -29,6 +29,10 @@ type_t shake256::getType() const {
 	return shake256::type;
 }
 
+type_t blake2b::getType() const {
+	return blake2b::type;
+}
+
 type_t argon2d::getType() const {
 	return argon2d::type;
 }

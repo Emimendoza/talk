@@ -18,6 +18,7 @@ namespace talk::crypto{
 		SHA256 = 0x3000,
 		SHA512 = 0x3001,
 		SHAKE256 = 0x3002,
+		BLAKE2B = 0x3003,
 		// Key Derivation Functions (0b0100 uppermost)
 		ARGON2D = 0x4000,
 		HKDF = 0x4001
@@ -94,6 +95,7 @@ namespace talk::crypto{
 	class sha256;
 	class sha512;
 	class shake256;
+	class blake2b;
 
 	// kdf
 	class kdf; // (abstract)
