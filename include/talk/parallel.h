@@ -76,6 +76,7 @@ namespace talk{
 
 		inline std::future<T> async(std::function<T(Args...)> f, Args... args);
 		inline std::vector<std::future<T>> async(std::function<T(Args...)> f, std::vector<Args...> args);
+		inline void async(std::function<T(Args...)> f, std::vector<Args...> args, std::vector<std::future<T>>& futures);
 	};
 
 	template <typename T>
@@ -86,6 +87,7 @@ namespace talk{
 
 		inline std::future<T> async(std::function<T(void)> f);
 		inline std::vector<std::future<T>> async(std::function<T(void)> f, size_t count);
+		inline void async(std::function<T(void)> f, size_t count, std::vector<std::future<T>>& futures);
 	};
 }
 

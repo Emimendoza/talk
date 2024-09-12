@@ -54,20 +54,34 @@ inline std::future<T> talk::poolHandle<T(Args...)>::async(std::function<T(Args..
 template<typename T>
 inline std::vector<std::future<T>> talk::poolHandle<T(void)>::async(std::function<T(void)> f, size_t count) {
 	std::vector<std::future<T>> futures;
-	futures.reserve(count);
-	for (size_t i = 0; i < count; i++) {
-		futures.push_back(async(f));
-	}
+	async(f, count, futures);
 	return futures;
 }
 
-template <typename T, typename... Args>
-inline std::vector<std::future<T>> talk::poolHandle<T(Args...)>::async(std::function<T(Args...)> f, std::vector<Args...> args){
-	std::vector<std::future<T>> futures;
-	futures.reserve(args.size());
-	for(auto& arg : args){
-		futures.push_back(async(f, arg));
+template<typename T>
+inline void talk::poolHandle<T(void)>::
+async(std::function<T(void)> f, size_t count, std::vector<std::future<T>>& futures) {
+	futures.resize(count);
+	for (size_t i = 0; i < count; i++) {
+		futures[i] = async(f);
 	}
+}
+
+template <typename T, typename... Args>
+inline void talk::poolHandle<T(Args...)>::
+async(std::function<T(Args...)> f, std::vector<Args...> args, std::vector<std::future<T>>& futures){
+	futures.resize(args.size());
+	size_t i = 0;
+	for(auto& arg : args){
+		futures[i++] = async(f, arg);
+	}
+}
+
+template<typename T, typename... Args>
+inline std::vector<std::future<T>> talk::poolHandle<T(Args...)>::
+async(std::function<T(Args...)> f, std::vector<Args...> args) {
+	std::vector<std::future<T>> futures;
+	async(f, args, futures);
 	return futures;
 }
 
