@@ -1,7 +1,7 @@
 #include <crypto.h>
 
 using namespace talk::crypto;
-using talk::bytes;
+using talk::bytes, talk::byteArr;
 
 
 // Types
@@ -70,6 +70,30 @@ bytes signature::sign(const talk::bytes &data) const {
 bytes hash::digestFinal() {
 	bytes out{};
 	digestFinalIn(out);
+	return out;
+}
+
+byteArr<32> sha256::digestFinalArr() {
+	byteArr<32> out{};
+	digestFinalArrIn(out);
+	return out;
+}
+
+byteArr<64> sha512::digestFinalArr() {
+	byteArr<64> out{};
+	digestFinalArrIn(out);
+	return out;
+}
+
+byteArr<32> shake256::digestFinalArr() {
+	byteArr<32> out{};
+	digestFinalArrIn(out);
+	return out;
+}
+
+byteArr<64> blake2b::digestFinalArr() {
+	byteArr<64> out{};
+	digestFinalArrIn(out);
 	return out;
 }
 

@@ -3,19 +3,24 @@
 #include <openssl/err.h>
 
 using namespace talk::crypto;
-using talk::bytes;
+using talk::bytes, talk::byteArr;
 
 namespace {
 	struct hash_ctx{
 		EVP_MD_CTX *ctx;
 		EVP_MD *type;
 		bool is_finalized = false;
+		size_t size;
 
 		explicit inline hash_ctx(const char *type_name);
 		inline ~hash_ctx();
 
 		inline void digestUpdate(const bytes &data) const;
 		inline void digestFinal(bytes& out);
+
+		template<size_t N>
+		inline void digestFinal(byteArr<N>& out);
+
 		inline void digestReset();
 	};
 }
@@ -41,6 +46,7 @@ inline hash_ctx::hash_ctx(const char *type_name) : ctx(EVP_MD_CTX_new()) {
 		ERR_print_errors_fp(stderr);
 		throw std::runtime_error("Failed to initialize ctx");
 	}
+	size = EVP_MD_size(type);
 }
 
 inline hash_ctx::~hash_ctx() {
@@ -59,7 +65,16 @@ inline void hash_ctx::digestUpdate(const bytes &data) const {
 }
 
 inline void hash_ctx::digestFinal(bytes& out) {
-	out.resize(EVP_MD_size(type));
+	out.resize(size);
+	if (!EVP_DigestFinal_ex(ctx, out.data(), nullptr)){
+		ERR_print_errors_fp(stderr);
+		throw std::runtime_error("Failed to finalize ctx");
+	}
+	is_finalized = true;
+}
+
+template<size_t N>
+inline void hash_ctx::digestFinal(byteArr<N> &out) {
 	if (!EVP_DigestFinal_ex(ctx, out.data(), nullptr)){
 		ERR_print_errors_fp(stderr);
 		throw std::runtime_error("Failed to finalize ctx");
@@ -122,6 +137,10 @@ void sha256::digestFinalIn(bytes &out) {
 	ctx->digestFinal(out);
 }
 
+void sha256::digestFinalArrIn(byteArr<32> &out) {
+	ctx->digestFinal(out);
+}
+
 void sha256::digestReset() {
 	ctx->digestReset();
 }
@@ -131,6 +150,10 @@ void sha512::digestUpdate(const bytes &data) {
 }
 
 void sha512::digestFinalIn(bytes &out) {
+	ctx->digestFinal(out);
+}
+
+void sha512::digestFinalArrIn(byteArr<64> &out) {
 	ctx->digestFinal(out);
 }
 
@@ -146,6 +169,10 @@ void shake256::digestFinalIn(bytes &out) {
 	ctx->digestFinal(out);
 }
 
+void shake256::digestFinalArrIn(byteArr<32> &out) {
+	ctx->digestFinal(out);
+}
+
 void shake256::digestReset() {
 	ctx->digestReset();
 }
@@ -155,6 +182,10 @@ void blake2b::digestUpdate(const bytes &data) {
 }
 
 void blake2b::digestFinalIn(bytes &out) {
+	ctx->digestFinal(out);
+}
+
+void blake2b::digestFinalArrIn(byteArr<64> &out) {
 	ctx->digestFinal(out);
 }
 

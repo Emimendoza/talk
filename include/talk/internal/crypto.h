@@ -71,6 +71,8 @@ namespace talk::crypto{
 		void digestReset() override;
 		sha256();
 		~sha256();
+		byteArr<32> digestFinalArr();
+		void digestFinalArrIn(byteArr<32> &out);
 	};
 
 	class sha512 final : public hash {
@@ -85,6 +87,8 @@ namespace talk::crypto{
 		void digestReset() override;
 		sha512();
 		~sha512();
+		byteArr<64> digestFinalArr();
+		void digestFinalArrIn(byteArr<64> &out);
 	};
 
 	class shake256 final : public hash {
@@ -99,6 +103,8 @@ namespace talk::crypto{
 		void digestReset() override;
 		shake256();
 		~shake256();
+		byteArr<32> digestFinalArr();
+		void digestFinalArrIn(byteArr<32> &out);
 	};
 
 	class blake2b final : public hash {
@@ -113,6 +119,8 @@ namespace talk::crypto{
 		void digestReset() override;
 		blake2b();
 		~blake2b();
+		byteArr<64> digestFinalArr();
+		void digestFinalArrIn(byteArr<64> &out);
 	};
 
 	class argon2d final : public kdf {
