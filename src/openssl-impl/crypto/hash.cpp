@@ -121,7 +121,7 @@ shake256::shake256() {
 }
 
 blake2b::blake2b() {
-	ctx = std::make_unique<crypt_context>("blake2b");
+	ctx = std::make_unique<crypt_context>("BLAKE2B-512");
 }
 
 sha256::~sha256() = default;
