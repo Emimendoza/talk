@@ -50,7 +50,7 @@ pool::pool(size_t threads){
 
 bool pool::queue(const std::function<void(void *)>& f, void *data) {
 	if (pimpl->stop) return false;
-	pimpl->tasks.push({f, data});
+	pimpl->tasks.pushMov({f, data});
 	pimpl->cv.notify_one();
 	return true;
 }

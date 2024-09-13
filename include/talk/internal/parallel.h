@@ -3,12 +3,12 @@
 #endif //TALK_PARALLEL_H
 #ifndef TALK_INTERNAL_PARALLEL_H
 #define TALK_INTERNAL_PARALLEL_H
-
+#include <functional>
 
 template<typename Signature>
 void talk::internal::poolHandle<Signature>::step(void *data) {
 	poolHandle<Signature>* us = static_cast<poolHandle<Signature>*>(data);
-	auto task = std::move(us->tasks.pop());
+	auto task = std::move(us->tasks.popMov());
 	task();
 }
 
@@ -30,29 +30,29 @@ talk::internal::poolHandle<Signature>::~poolHandle() {
 }
 
 template<typename T>
-inline std::future<T> talk::poolHandle<T(void)>::async(std::function<T(void)> f) {
+inline std::future<T> talk::poolHandle<T(void)>::async(const std::function<T(void)> &f) {
 	if (!this->p->queue(this->step, this)) {
 		throw std::runtime_error("Pool is not accepting new tasks");
 	}
-	std::packaged_task<T()> task(f());
+	std::packaged_task<T()> task(f);
 	auto future = task.get_future();
-	this->tasks.push(std::move(task));
+	this->tasks.pushMov(std::move(task));
 	return future;
 }
 
 template<typename T, typename... Args>
-inline std::future<T> talk::poolHandle<T(Args...)>::async(std::function<T(Args...)> f, Args... args) {
+inline std::future<T> talk::poolHandle<T(Args...)>::async(const std::function<T(Args...)> &f, argPack &args) {
 	if (!this->p->queue(this->step, this)) {
 		throw std::runtime_error("Pool is not accepting new tasks");
 	}
-	std::packaged_task<T(Args...)> task(f(args...));
+	std::packaged_task<T()> task(std::bind(call, f, args));
 	auto future = task.get_future();
-	this->tasks.push(std::move(task));
+	this->tasks.pushMov(std::move(task));
 	return future;
 }
 
 template<typename T>
-inline std::vector<std::future<T>> talk::poolHandle<T(void)>::async(std::function<T(void)> f, size_t count) {
+inline std::vector<std::future<T>> talk::poolHandle<T(void)>::async(const std::function<T(void)> &f, size_t count) {
 	std::vector<std::future<T>> futures;
 	async(f, count, futures);
 	return futures;
@@ -60,7 +60,7 @@ inline std::vector<std::future<T>> talk::poolHandle<T(void)>::async(std::functio
 
 template<typename T>
 inline void talk::poolHandle<T(void)>::
-async(std::function<T(void)> f, size_t count, std::vector<std::future<T>>& futures) {
+async(const std::function<T(void)> &f, size_t count, std::vector<std::future<T>>& futures) {
 	futures.resize(count);
 	for (size_t i = 0; i < count; i++) {
 		futures[i] = async(f);
@@ -69,7 +69,7 @@ async(std::function<T(void)> f, size_t count, std::vector<std::future<T>>& futur
 
 template <typename T, typename... Args>
 inline void talk::poolHandle<T(Args...)>::
-async(std::function<T(Args...)> f, std::vector<Args...> args, std::vector<std::future<T>>& futures){
+async(const std::function<T(Args...)> &f, std::vector<argPack> &args, std::vector<std::future<T>>& futures){
 	futures.resize(args.size());
 	size_t i = 0;
 	for(auto& arg : args){
@@ -79,7 +79,7 @@ async(std::function<T(Args...)> f, std::vector<Args...> args, std::vector<std::f
 
 template<typename T, typename... Args>
 inline std::vector<std::future<T>> talk::poolHandle<T(Args...)>::
-async(std::function<T(Args...)> f, std::vector<Args...> args) {
+async(const std::function<T(Args...)> &f, std::vector<argPack> &args) {
 	std::vector<std::future<T>> futures;
 	async(f, args, futures);
 	return futures;
@@ -93,6 +93,13 @@ void talk::queue<T>::push(T t) {
 }
 
 template<typename T>
+void talk::queue<T>::pushMov(T&& t) {
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+	queue.push(std::move(t));
+	cv.notify_one();
+}
+
+template<typename T>
 T talk::queue<T>::pop() {
 	std::unique_lock<std::recursive_mutex> lock(mutex);
 	cv.wait(lock, [this] { return !queue.empty(); });
@@ -100,6 +107,16 @@ T talk::queue<T>::pop() {
 	queue.pop();
 	cv_empty.notify_all();
 	return t;
+}
+
+template<typename T>
+T talk::queue<T>::popMov() {
+	std::unique_lock<std::recursive_mutex> lock(mutex);
+	cv.wait(lock, [this] { return !queue.empty(); });
+	auto t = std::move(queue.front());
+	queue.pop();
+	cv_empty.notify_all();
+	return std::move(t);
 }
 
 template<typename T>

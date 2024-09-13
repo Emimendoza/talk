@@ -11,11 +11,11 @@ namespace talk{
 }
 
 namespace talk::internal{
-	template <typename Signature>
+	template <typename T>
 	class poolHandle{
 	protected:
 		static void step(void* data);
-		queue<std::packaged_task<Signature>> tasks;
+		queue<std::packaged_task<T()>> tasks;
 		std::shared_ptr<pool> p;
 	public:
 		poolHandle() = delete;
@@ -35,8 +35,10 @@ namespace talk{
 	public:
 		// Non-blocking
 		void push(T t);
+		void pushMov(T&& t);
 		// Blocking
 		T pop();
+		T popMov();
 		// Blocking with timeout
 		bool pop(std::chrono::milliseconds timeout, T& out);
 
@@ -69,25 +71,32 @@ namespace talk{
 	class poolHandle;
 
 	template <typename T, typename... Args>
-	class poolHandle<T(Args...)> : public internal::poolHandle<T(Args...)>{
+	class poolHandle<T(Args...)> : public internal::poolHandle<T>{
+	public:
+		typedef std::tuple<Args...> argPack;
+	private:
+		static T call(const std::function<T(Args...)>& f, argPack& args){
+			return std::apply(f, args);
+		}
 	public:
 		// Inherit constructors
-		using internal::poolHandle<T(Args...)>::poolHandle;
+		using internal::poolHandle<T>::poolHandle;
 
-		inline std::future<T> async(std::function<T(Args...)> f, Args... args);
-		inline std::vector<std::future<T>> async(std::function<T(Args...)> f, std::vector<Args...> args);
-		inline void async(std::function<T(Args...)> f, std::vector<Args...> args, std::vector<std::future<T>>& futures);
+
+		inline std::future<T> async(const std::function<T(Args...)> &f, argPack &args);
+		inline std::vector<std::future<T>> async(const std::function<T(Args...)> &f, std::vector<argPack> &args);
+		inline void async(const std::function<T(Args...)> &f, std::vector<argPack> &args, std::vector<std::future<T>>& futures);
 	};
 
 	template <typename T>
-	class poolHandle<T(void)> : public internal::poolHandle<T(void)>{
+	class poolHandle<T(void)> : public internal::poolHandle<T>{
 	public:
 		// Inherit constructors
-		using internal::poolHandle<T(void)>::poolHandle;
+		using internal::poolHandle<T>::poolHandle;
 
-		inline std::future<T> async(std::function<T(void)> f);
-		inline std::vector<std::future<T>> async(std::function<T(void)> f, size_t count);
-		inline void async(std::function<T(void)> f, size_t count, std::vector<std::future<T>>& futures);
+		inline std::future<T> async(const std::function<T(void)> &f);
+		inline std::vector<std::future<T>> async(const std::function<T(void)> &f, size_t count);
+		inline void async(const std::function<T(void)> &f, size_t count, std::vector<std::future<T>>& futures);
 	};
 }
 
