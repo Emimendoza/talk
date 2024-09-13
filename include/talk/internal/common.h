@@ -43,13 +43,19 @@ namespace talk::internal{
 namespace talk{
 
 	template<typename T>
-	constexpr bytes::bytes(std::initializer_list<T> list){
-		reserve(list.size() * sizeof(T));
+	constexpr bytes::bytes(std::initializer_list<T> list) : std::vector<byte>(list.size() * sizeof(T)){
+		size_t i = 0;
 		for (const auto& item : list){
 			const auto& data = serialize(item);
-			insert(end(), data.begin(), data.end());
+			for (const auto& b : data){
+				(*this)[i++] = b;
+			}
 		}
 	}
+
+	template<size_t N>
+	constexpr bytes::bytes(const byteArr<N>& data) :
+	std::vector<byte>(data.begin(), data.end()){}
 
 	[[nodiscard]]
 	constexpr bytes bytes::fromHex(const std::string_view& hex, bool& success){

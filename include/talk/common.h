@@ -34,6 +34,9 @@ namespace talk {
 		template<typename T>
 		constexpr bytes(std::initializer_list<T> list);
 
+		template<size_t N>
+		explicit constexpr bytes(const byteArr<N>& data);
+
 		/**
 		 * @brief Construct a bytes object from a hex string
 		 * @param hex the hex string
