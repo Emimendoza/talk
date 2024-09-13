@@ -34,23 +34,23 @@ namespace talk{
 		std::queue<T> queue;
 	public:
 		// Non-blocking
-		void push(T t);
-		void pushMov(T&& t);
+		inline void push(T t);
+		inline void pushMov(T&& t);
 		// Blocking
-		T pop();
-		T popMov();
+		inline T pop();
+		inline T popMov();
 		// Blocking with timeout
-		bool pop(std::chrono::milliseconds timeout, T& out);
+		inline bool pop(std::chrono::milliseconds timeout, T& out);
 
 		// Non-blocking
-		bool TryPop(T& out);
+		inline bool TryPop(T& out);
 
 		// Non-blocking
-		bool empty();
-		size_t size();
+		inline bool empty();
+		inline size_t size();
 
 		// Blocking until empty
-		void empty_block();
+		inline void empty_block();
 	};
 
 	class pool{
