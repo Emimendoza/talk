@@ -10,15 +10,14 @@ void talk::internal::poolHandle<Signature>::step(void *data) {
 	poolHandle<Signature>* us = static_cast<poolHandle<Signature>*>(data);
 	auto task = std::move(us->tasks.popMov());
 	task();
+	us->runningTasks--;
+	us->runningTasks.notify_all();
 }
 
 template<typename Signature>
-inline talk::internal::poolHandle<Signature>::poolHandle(const std::shared_ptr<pool>& p) : p(p) {
-	if (!p) {
-		throw std::runtime_error("Pool is nullptr");
-	}
+inline talk::internal::poolHandle<Signature>::poolHandle(const pool& p) : p(p) {
 	auto id = std::this_thread::get_id();
-	if (p->getThreadIds().contains(id)) {
+	if (p.getThreadIds().contains(id)) {
 		// We throw because otherwise we could possibly deadlock
 		throw std::runtime_error("PoolHandle is being created from a pool thread");
 	}
@@ -26,27 +25,35 @@ inline talk::internal::poolHandle<Signature>::poolHandle(const std::shared_ptr<p
 
 template<typename Signature>
 talk::internal::poolHandle<Signature>::~poolHandle() {
-	tasks.empty_block();
+	this->tasks.empty_block();
+	size_t old = this->runningTasks.load();
+	while (old > 0) {
+		this->runningTasks.wait(old);
+		old = this->runningTasks.load();
+	}
 }
 
 template<typename T>
 inline std::future<T> talk::poolHandle<T(void)>::async(const std::function<T(void)> &f) {
-	if (!this->p->queue(this->step, this)) {
+	if (!this->p.queue(this->step, this)) {
 		throw std::runtime_error("Pool is not accepting new tasks");
 	}
 	std::packaged_task<T()> task(f);
 	auto future = task.get_future();
+	this->runningTasks++;
 	this->tasks.pushMov(std::move(task));
 	return future;
 }
 
 template<typename T, typename... Args>
 inline std::future<T> talk::poolHandle<T(Args...)>::async(const std::function<T(Args...)> &f, argPack &args) {
-	if (!this->p->queue(this->step, this)) {
+	if (!this->p.queue(this->step, this)) {
 		throw std::runtime_error("Pool is not accepting new tasks");
 	}
+
 	std::packaged_task<T()> task(std::bind(call, f, args));
 	auto future = task.get_future();
+	this->runningTasks++;
 	this->tasks.pushMov(std::move(task));
 	return future;
 }

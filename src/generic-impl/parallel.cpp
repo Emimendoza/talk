@@ -12,6 +12,7 @@ namespace{
 		talk::queue<task> tasks;
 		std::atomic<bool> stop = false;
 		std::unordered_set<std::thread::id> threadIds;
+		~p_impl();
 	};
 }
 
@@ -34,11 +35,14 @@ static void threadFunc(p_impl* p){
 }
 
 
-struct talk::pool::impl : public p_impl{};
+struct talk::pool::impl : public p_impl{
+	friend pool;
+	std::mutex mutex;
+};
 
 pool::pool(size_t threads){
 	if (threads == 0) threads = 1;
-	pimpl = std::make_unique<impl>();
+	pimpl = std::make_shared<impl>();
 	pimpl->threads = std::make_unique<std::thread[]>(threads);
 	pimpl->threadIds.reserve(threads);
 	for(size_t i = 0 ; i < threads ; i++){
@@ -49,22 +53,36 @@ pool::pool(size_t threads){
 }
 
 bool pool::queue(const std::function<void(void *)>& f, void *data) {
+	std::unique_lock<std::mutex> lock(pimpl->mutex);
 	if (pimpl->stop) return false;
 	pimpl->tasks.pushMov({f, data});
 	pimpl->cv.notify_one();
 	return true;
 }
 
-pool::~pool() {
-	pimpl->stop = true;
-	pimpl->cv.notify_all();
-	pimpl->tasks.empty_block();
-	for(size_t i = 0 ; i < pimpl->threads_size ; i++){
-		pimpl->threads[i].join();
+pool::~pool() = default;
+
+p_impl::~p_impl() {
+	stop = true;
+	cv.notify_all();
+	tasks.empty_block();
+	for(size_t i = 0 ; i < threads_size ; i++){
+		threads[i].join();
 	}
 }
 
 const std::unordered_set<std::thread::id>& pool::getThreadIds() const{
+	std::unique_lock<std::mutex> lock(pimpl->mutex);
 	return pimpl->threadIds;
+}
+
+pool &pool::operator=(const pool &other) {
+	if (this == &other) return *this;
+	volatile auto temp = pimpl;
+	{
+		std::unique_lock<std::mutex> lock(pimpl->mutex);
+		pimpl = other.pimpl;
+	}
+	return *this;
 }
 

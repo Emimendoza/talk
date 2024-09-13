@@ -25,7 +25,7 @@ namespace{
 		std::atomic<size_t> maxThreads{1};
 		void setMaxThreads(size_t threads) override {
 			maxThreads = threads;
-			crypto::cryptoPool = std::make_shared<pool>(threads);
+			crypto::cryptoPool = pool(threads);
 		}
 	private:
 		void registerThread(void* thread){
@@ -36,7 +36,7 @@ namespace{
 	generic_threads _generic_threads{};
 }
 
-std::shared_ptr<pool> talk::crypto::cryptoPool = std::make_shared<pool>(1);
+pool talk::crypto::cryptoPool = pool(1);
 
 size_t threads::getMaxThreads(){
 	return _generic_threads.maxThreads;

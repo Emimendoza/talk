@@ -4,25 +4,8 @@
 #include <queue>
 #include <unordered_set>
 
-namespace talk{
-	class pool;
-	template <typename T>
-	class queue;
-}
 
-namespace talk::internal{
-	template <typename T>
-	class poolHandle{
-	protected:
-		static void step(void* data);
-		queue<std::packaged_task<T()>> tasks;
-		std::shared_ptr<pool> p;
-	public:
-		poolHandle() = delete;
-		inline ~poolHandle();
-		inline explicit poolHandle(const std::shared_ptr<pool>& p);
-	};
-}
+
 
 namespace talk{
 	template <typename T>
@@ -56,11 +39,12 @@ namespace talk{
 	class pool{
 	private:
 		struct impl;
-		std::unique_ptr<impl> pimpl;
+		std::shared_ptr<impl> pimpl;
 	public:
 		// Returns false if pool is not accepting new tasks (stopped or stopping)
 		bool queue(const std::function<void(void*)>& f, void* data);
 		pool() = delete;
+		pool& operator=(const pool&);
 		explicit pool(size_t threads);
 		~pool();
 
@@ -69,6 +53,20 @@ namespace talk{
 
 	template <typename Signature>
 	class poolHandle;
+	namespace internal{
+		template <typename T>
+		class poolHandle{
+		protected:
+			static void step(void* data);
+			queue<std::packaged_task<T()>> tasks;
+			std::atomic<size_t> runningTasks{0};
+			pool p;
+		public:
+			poolHandle() = delete;
+			inline ~poolHandle();
+			inline explicit poolHandle(const pool& p);
+		};
+	}
 
 	template <typename T, typename... Args>
 	class poolHandle<T(Args...)> : public internal::poolHandle<T>{

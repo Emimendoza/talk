@@ -182,7 +182,7 @@ namespace talk::crypto{
 		return out.toArray<N>();
 	}
 
-	extern std::shared_ptr<pool> cryptoPool;
+	extern pool cryptoPool;
 }
 
 #endif //TALK_INTERNAL_CRYPTO_H
